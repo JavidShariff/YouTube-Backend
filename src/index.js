@@ -2,11 +2,18 @@
 import { configDotenv } from "dotenv";
 import express from "express";
 import connectdb from "./db/db.js";
-
-connectdb();
-
 configDotenv({path:".env"});
 
+const app = express();
+
+connectdb()
+.then(()=>{
+    app.listen(process.env.PORT || 8000,()=>{
+        console.log(`Server is listening at PORT ${process.env.PORT}`);
+    })
+}).catch((error)=>{
+    console.error("ERROR IN MONGODB", error);
+});
 
 
 
