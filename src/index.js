@@ -3,8 +3,7 @@ import { configDotenv } from "dotenv";
 import express from "express";
 import connectdb from "./db/db.js";
 configDotenv({path:".env"});
-
-const app = express();
+import { app } from "./app.js";
 
 connectdb()
 .then(()=>{
