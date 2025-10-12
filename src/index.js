@@ -2,7 +2,7 @@
 import { configDotenv } from "dotenv";
 import express from "express";
 import connectdb from "./db/db.js";
-configDotenv({path:".env"});
+configDotenv({path:"./.env"});
 import { app } from "./app.js";
 
 connectdb()
