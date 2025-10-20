@@ -11,8 +11,8 @@ const verifyJWT = asyncHandler(async (req, _,next) =>{
             throw new ApiErrors(400,"Invalid Token");
         }
     
-        const decodedToken = jwt.verify(token,process.env.ACCESS_TOKEN_SECRET).select("-password -refreshToken");
-        const user = User.findById(decodedToken?._id);
+        const decodedToken = jwt.verify(token,process.env.ACCESS_TOKEN_SECRET);
+        const user = await User.findById(decodedToken?._id);
         if(!user){
             throw new ApiErrors(400,"Invalid Access Token");
         }
@@ -20,7 +20,7 @@ const verifyJWT = asyncHandler(async (req, _,next) =>{
         req.user = user;
         next();
     } catch (error) {
-        throw new ApiErrors(400,error);
+        throw new ApiErrors(400,"error in JWT",error);
     }
 })
 

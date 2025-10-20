@@ -10,9 +10,11 @@ import mongoose from "mongoose";
 
 const generateAccessAndRefreshToken = async (userId) =>{
     try {
-        const user = User.findById(userId);
-        const refreshToken = user.generateAccessToken();
-        const accessToken = user.generateRefreshToken();
+        const user = await User.findById(userId);
+        
+        const refreshToken = await user.generateRefreshToken();
+        const accessToken = await user.generateAccessToken() ;
+        console.log(accessToken);
         user.refreshToken = refreshToken;
         await user.save({validateBeforeSave : false});
         return {accessToken,refreshToken};
@@ -77,16 +79,18 @@ const registerUser = asyncHandler(async (req,res) => {
 });
 
 const loginUser = asyncHandler(async (req,res) =>{
+
     const {email,username,password} = req.body;
-    if(!(email || username)){
-        throw new ApiErrors(400,"email and username required");
+    if(!email && !username){
+        throw new ApiErrors(400,"email or username required");
     }
-    const user = User.findOne({
+    const user = await User.findOne({
         $or : [{email},{username}]
     })
     if(!user){
         throw new ApiErrors(400,"Invalid username or email");
     }
+    console.log(user._id);
     const isPassword = await user.isPasswordCorrect(password);
     if(!isPassword){
         throw new ApiErrors(400,"Invalid user credentials");
@@ -94,7 +98,7 @@ const loginUser = asyncHandler(async (req,res) =>{
 
     const {accessToken,refreshToken} = await generateAccessAndRefreshToken(user._id);
 
-    const loggedInUser = User.findById(user._id).select("-password -refreshtoken");
+    const loggedInUser = await User.findById(user._id).select("-password -refreshtoken");
 
     res.status(200).cookie("accessToken",accessToken,options)
     .cookie("refreshToken",refreshToken,options)
@@ -329,7 +333,8 @@ const getUserChannelProfile = asyncHandler(async (req,res)=>{
     )
 })
 
-const getUserWatchHistory = async(async (req,res)=>{
+const getUserWatchHistory = asyncHandler(
+    (async (req,res)=>{
 
     const channel = await User.aggregate([
         {
@@ -381,6 +386,7 @@ const getUserWatchHistory = async(async (req,res)=>{
         new ApiResponse(200,channel[0].watchHistory,"Fetch WatchHistory Successfully")
     )
 })
+) 
 
 export {
     registerUser,
