@@ -90,7 +90,6 @@ const loginUser = asyncHandler(async (req,res) =>{
     if(!user){
         throw new ApiErrors(400,"Invalid username or email");
     }
-    console.log(user._id);
     const isPassword = await user.isPasswordCorrect(password);
     if(!isPassword){
         throw new ApiErrors(400,"Invalid user credentials");
